@@ -1,0 +1,32 @@
+{
+  "duration": 28.6,
+  "fps": 60,
+  "ops": {
+    "antenna": 3.0,
+    "eye": 6.4,
+    "jaw": 9.8,
+    "thorax": 13.2,
+    "abdomen": 16.6,
+    "legs": 20.0,
+    "explode": 23.2,
+    "exit": 25.8
+  },
+  "events": {
+    "stop": {"t": 1.5, "duration": 1.1},
+    "antennaOpen": {"t": 3.85, "duration": 0.9},
+    "antennaClose": {"t": 6.0, "duration": 0.55},
+    "eyeOpen": {"t": 7.25, "duration": 0.95},
+    "eyeClose": {"t": 9.4, "duration": 0.55},
+    "jawOpen": {"t": 10.65, "duration": 0.9},
+    "jawClose": {"t": 12.8, "duration": 0.55},
+    "thoraxOpen": {"t": 14.05, "duration": 0.9},
+    "thoraxClose": {"t": 16.2, "duration": 0.55},
+    "abdomenOpen": {"t": 17.45, "duration": 0.95},
+    "abdomenClose": {"t": 19.6, "duration": 0.55},
+    "legsOpen": {"t": 20.85, "duration": 0.9},
+    "legsClose": {"t": 22.85, "duration": 0.5},
+    "burst": {"t": 23.5, "duration": 1.25},
+    "rebuild": {"t": 25.9, "duration": 1.0},
+    "walkout": {"t": 26.75, "duration": 0.6}
+  }
+}
