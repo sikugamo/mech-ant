@@ -37,8 +37,8 @@ worker() {
     mkdir "$CH/$name.lock" 2>/dev/null || continue
     a=$(node -e "console.log($s/$FPS)")
     b=$(node -e "console.log(Math.min($NF, $s + $STEP)/$FPS)")
-    # a load spike can push one frame past the capture's 30 s screenshot timeout: retry the chunk, 3 attempts
-    for attempt in 1 2 3; do
+    # a load spike can push one frame past the capture's 30 s screenshot timeout: retry the chunk, 5 attempts
+    for attempt in 1 2 3 4 5; do
       echo "[worker $w] $name: $a..$b s (attempt $attempt)"
       if node "$SKILL/sims/capture.mjs" ant-film --size 1600x900 --dpr 1.2 --fps $FPS --from "$a" --to "$b" --out "$CH/$name.part.mp4"; then
         mv "$CH/$name.part.mp4" "$CH/$name.mp4"

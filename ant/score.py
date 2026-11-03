@@ -6,8 +6,8 @@ film's own timeline:
 
 - footfalls for the walk in and the scurry out, from the same gait integral the legs walk on (plan.js),
 - a click on each operator action, a whoosh under each camera move,
-- for each assembly: a servo as it opens and a rising pop for every component as it separates (the eye's eleven
-  layers get eleven), a lock click as it closes,
+- for each assembly: a run of ticks as its screws back out, a servo as it opens and a rising run of pops as its
+  component groups separate, a lock click as it closes,
 - a riser into the full teardown, the impact, scattering parts, locking clicks as it rebuilds, a chime as it leaves.
 
     python run_sfx.py ant/score.py
@@ -32,7 +32,8 @@ MOTIF = [(0.5, hz("C5")), (1.5, hz("A4")), (2.5, hz("G4"))]
 
 # kin.js / plan.js
 V_MAX, STRIDE, DUTY, EXIT_V = 0.14, 0.12, 0.55, 0.62
-SECTIONS = {"antenna": 6, "eye": 11, "jaw": 8, "thorax": 7, "abdomen": 9, "legs": 9}
+# one pop per component group as it separates (each section now opens into dozens of parts)
+SECTIONS = {"antenna": 14, "eye": 16, "jaw": 14, "thorax": 16, "abdomen": 14, "legs": 14}
 
 
 def smoother(x):
@@ -84,6 +85,10 @@ def score(mix, tl):
         for i in range(n):
             tt = op["t"] + op["duration"] * (0.12 + 0.75 * i / max(1, n - 1))
             mix.put(tt, pop(700 + 70 * i, 1100 + 90 * i, 0.12), 0.022, -0.5 + i / max(1, n - 1))
+        # the screws backing out first: a quick run of small ticks
+        for i in range(8):
+            tt = op["t"] + op["duration"] * (0.05 + 0.04 * i)
+            mix.put(tt, click(3200 + 180 * i, 0.012), 0.022, -0.6 + 0.17 * i)
         mix.put(cl["t"], whoosh(cl["duration"] + 0.1, 1800, 500, peak=0.7), 0.022)
         mix.put(cl["t"] + cl["duration"], click(1700, 0.03), 0.045)
         mix.put(cl["t"] + cl["duration"], thud(120, 0.025, 0.18), 0.03)
