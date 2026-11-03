@@ -10,6 +10,8 @@ Each assembly comes apart along its own axis into a stack of components, the way
 
 **▶ Watch the film: [`media/formica-fx6.mp4`](media/formica-fx6.mp4)**
 
+**▶ Play it live in a browser: [`media/ant-film.html`](media/ant-film.html).** Download it and open it locally. It's one self-contained file (no network), plays the film in real time and loops, without the music. Keys: Space pause, ←/→ skip 2 s, 1–9 jump to a section, R restart, H hide panels, F fullscreen. To rebuild it after changing the source, run `node ~/.claude/skills/teardown/sims/build.mjs ./ant-film` and copy `teardown-out/dist/ant-film.html` here.
+
 ## Shot list
 
 | Time | Operator action | What opens (labels use the sheet's numbering) |
