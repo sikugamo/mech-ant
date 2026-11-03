@@ -31,6 +31,8 @@ Each assembly comes apart along its own axis into a stack of components, the way
 - **Sound:** none; the music is only in the MP4.
 - **Rebuild:** after a source change, run `node ~/.claude/skills/teardown/sims/build.mjs ./ant-live` and copy `teardown-out/dist/ant-live.html` into `media/`.
 
+**Guide:** [`docs/teardown-guide.md`](docs/teardown-guide.md) is a general how-to for building your own take-apart object with the teardown toolkit.
+
 ## Shot list
 
 | Time | Operator action | What opens (labels use the sheet's numbering) |
