@@ -66,7 +66,7 @@ export const VIEW_FN = {
   hero: (u, bx) => ({tx: bx + 0.0, ty: 0.22, tz: 0, az: 34 + 1.5 * u, el: 14, d: 2.35, sx: 0, sy: -36}),
   antenna: (u) => ({tx: XS + 0.4, ty: 0.36, tz: -0.06, az: 40 + 2 * u, el: 20, d: 1.35, sx: 0, sy: -40}),
   eye: (u) => ({tx: XS + 0.31, ty: 0.25, tz: -0.27, az: 10 + 1.5 * u, el: 27, d: 1.62, sx: 0, sy: -40}),
-  jaw: (u) => ({tx: XS + 0.38, ty: 0.135, tz: 0, az: 26 + 2 * u, el: 12, d: 0.8, sx: 0, sy: -40}),
+  jaw: (u) => ({tx: XS + 0.37, ty: 0.15, tz: 0, az: 26 + 2 * u, el: 13, d: 1.02, sx: 0, sy: -40}),
   thorax: (u) => ({tx: XS + 0.06, ty: 0.24, tz: 0, az: 55 + 2 * u, el: 34, d: 1.35, sx: 0, sy: -40}),
   abdomen: (u) => ({tx: XS - 0.33, ty: 0.22, tz: 0, az: 100 + 1.5 * u, el: 26, d: 2.15, sx: 0, sy: -40}),
   legs: (u) => ({tx: XS + 0.24, ty: 0.18, tz: -0.15, az: 131 - 1.5 * u, el: 12, d: 1.3, sx: 0, sy: -40}),
@@ -135,62 +135,64 @@ const CALLS = {
     ['ant-01', '01-01 TIP SENSOR CAP', 'TACTILE · STEEL'],
     ['ant-02', '01-02 ARMOR SLEEVE', '3 SEGMENTS'],
     ['ant-03', '01-03 CORE CABLE', 'FLEXIBLE · 24 WIRES'],
-    ['ant-04', '01-04 SEGMENT JOINT', '13 PER ANTENNA'],
-    ['ant-05', '01-05 SWIVEL JOINT', '2 AXES'],
-    ['ant-06', '01-06 MOUNTING BASE', '4 BOLTS'],
+    ['ant-04', '01-04 SEGMENT JOINT', '13 × BEARING + COLLAR'],
+    ['ant-05', '01-05 SWIVEL JOINT', '2 AXES · 5-RING SLIP RING'],
+    ['ant-06', '01-06 MOUNTING BASE', 'PAN SERVO · 4 BOLTS'],
   ],
   eye: () => [
     ['eye-01', '03-01 PROTECTIVE DOME', 'GLOSSY · Ø 83 MM'],
     ['eye-02', '03-02 OUTER BEZEL', 'ARMOR · 6 BOLTS'],
     ['eye-04', '03-04 FRONT LENS', 'CONVEX'],
-    ['eye-06', '03-06 IRIS / APERTURE', '8 BLADES'],
-    ['eye-08', '03-08 IMAGE SENSOR PCB', 'GLOBAL SHUTTER'],
+    ['eye-06', '03-06 IRIS / APERTURE', '8 BLADES · OWN SERVO'],
+    ['eye-08', '03-08 IMAGE SENSOR PCB', 'GLOBAL SHUTTER · HEAT SINK'],
     ['eye-09', '03-09 BACKPLATE', 'REAR CONNECTOR'],
   ],
   jaw: () => [
     ['jaw-01', '02-01 OUTER JAW COVER', 'LEFT · ARMOR'],
     ['jaw-02', '02-02 SERRATED BLADE', '7 TEETH'],
-    ['jaw-03', '02-03 ACTUATOR GEAR', '14 TEETH'],
-    ['jaw-04', '02-04 DRIVE MOTOR', 'BRUSHLESS'],
+    ['jaw-03', '02-03 ACTUATOR GEAR', '14 TEETH · IDLER · SECTOR'],
+    ['jaw-04', '02-04 DRIVE MOTOR', 'BRUSHLESS · PLANETARY'],
     ['jaw-05', '02-05 PIVOT SHAFT', '& 2 BEARINGS'],
     ['jaw-08', '02-08 MOUNTING BRACKET', '4 BOLTS'],
   ],
   thorax: () => [
     ['th-01', '04-01 ARMOR PANEL', '6 PANELS'],
     ['th-02', '04-02 CENTRAL CHASSIS', 'ALUMINIUM'],
-    ['th-03', '04-03 MAIN CONTROL BOARD', '4 CORES'],
-    ['th-04', '04-04 ROTARY DRIVE MOTORS', '3 PAIRS'],
+    ['th-03', '04-03 MAIN CONTROL BOARD', '4 CORES · IMU · FAN'],
+    ['th-04', '04-04 ROTARY DRIVE MOTORS', '3 PAIRS · PLANETARY'],
     ['th-05', '04-05 NECK CONNECTOR', 'TO HEAD'],
     ['th-07', '04-07 REAR CONNECTOR', 'TO ABDOMEN'],
   ],
   abdomen: () => [
     ['ab-01', '05-01 REAR TIP COVER', 'ARMOR'],
-    ['ab-03', '05-03 COOLING FAN & DUCT', '9 BLADES'],
-    ['ab-04', '05-04 CONTROL MODULE', 'POWER MGMT'],
+    ['ab-03', '05-03 COOLING FAN & DUCT', '9 BLADES · BLDC'],
+    ['ab-04', '05-04 CONTROL MODULE', '2 BOARDS · HEAT SINK'],
     ['ab-05', '05-05 BATTERY CELLS', `4 × ${BATTERY.wh / 4} WH`],
     ['ab-07', '05-07 ARMOR PANEL', 'LEFT · VENTED'],
     ['ab-08', '05-08 TOP COVER', 'ARMOR'],
   ],
   legs: (p, tq) => [
-    ['leg-02', '06-02 HIP MOTOR ASSEMBLY', 'YAW DRIVE'],
+    ['leg-02', '06-02 HIP MOTOR ASSEMBLY', 'YAW · PLANETARY'],
     ['leg-03', '06-03 UPPER ARMOR', 'LEFT / RIGHT'],
     ['leg-05', '06-05 KNEE ACTUATOR', `${tq[0].toFixed(2)} N·M`],
     ['leg-06', '06-06 LOWER ARMOR', 'SHIN PLATE'],
-    ['leg-08', '06-08 ANKLE JOINT', 'PASSIVE'],
-    ['leg-09', '06-09 FOOT', '3 PARTS · 2 CLAWS'],
+    ['leg-08', '06-08 ANKLE JOINT', '2 BEARINGS · SPRING'],
+    ['leg-09', '06-09 FOOT', '3 PARTS · PADS · CLAWS'],
   ],
   teardown: () => [
-    ['ant-01', '01 ANTENNAE', '2 × 6 TYPES'],
-    ['eye-01', '03 EYES', '2 × 9 LAYERS'],
-    ['th-03', '04 THORAX', '7 COMPONENTS'],
-    ['ab-08', '05 ABDOMEN', '9 COMPONENTS'],
-    ['leg-05', '06 LEGS', '6 × 9 COMPONENTS'],
+    ['ant-01', '01 ANTENNAE', 'SLIP RING · PAN SERVO'],
+    ['eye-01', '03 EYES', 'CAMERA MODULE'],
+    ['th-03', '04 THORAX', '6 ACTUATORS'],
+    ['ab-08', '05 ABDOMEN', '4 CELLS · FAN'],
+    ['leg-05', '06 LEGS', '12 ACTUATORS'],
   ],
 };
-const COUNT = {antenna: '6 COMPONENTS', eye: '9 LAYERS', jaw: '8 COMPONENTS', thorax: '7 COMPONENTS', abdomen: '9 COMPONENTS', legs: '9 COMPONENTS'};
+let COUNT = {};
 const SUB_KEYS = ['antenna', 'jaw', 'eye', 'thorax', 'abdomen', 'legs'];
 
 export function makeConsoleFrame(ui, st) {
+  // how many parts each section opens into, counted off the model
+  COUNT = Object.fromEntries(P.SECTIONS.map((s) => [s, `${st.ant.parts.filter((q) => q.sec === s).length} PARTS`]));
   return (t, p) => {
     const tq = torques(p);
     const draw = drawAt(p);

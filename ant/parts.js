@@ -54,8 +54,16 @@ export const G = {
   sphere: (w = 20, h = 14) => memo(`sph${w}`, () => new THREE.SphereGeometry(1, w, h)),
   hex: () => memo('hex', () => new THREE.CylinderGeometry(1, 1, 1, 6, 1)),
   torus: (t = 0.18) => memo(`tor${t}`, () => new THREE.TorusGeometry(1, t, 8, 32)),
+  torusL: (t = 0.18) => memo(`torl${t}`, () => new THREE.TorusGeometry(1, t, 5, 16)),
   rbox: (r = 0.25) => memo(`rb${r}`, () => new RoundedBoxGeometry(1, 1, 1, 2, r)),
   cone: () => memo('cone', () => new THREE.ConeGeometry(1, 1, 10, 1)),
+  // a thick-walled tube along z, outer radius 1, inner radius `inner`, length 1
+  tubeZ: (inner = 0.8, seg = 32) =>
+    memo(`tubez${inner}-${seg}`, () => {
+      const V = THREE.Vector2;
+      const g = new THREE.LatheGeometry([new V(inner, 0.5), new V(1, 0.5), new V(1, -0.5), new V(inner, -0.5), new V(inner, 0.5)], seg);
+      return g.rotateX(Math.PI / 2);
+    }),
 };
 
 /** A gear lying in the xy plane, centred, axis along z. */
