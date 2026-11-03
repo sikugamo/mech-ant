@@ -381,5 +381,5 @@ export function createConsole(app, {parts, actions, duration}) {
     ring.style.opacity = String(c.ring * 0.85);
     ring.style.transform = `scale(${(0.35 + 0.9 * (1 - c.ring)).toFixed(3)})`;
   };
-  return {update, spots, covered};
+  return {update, spots, covered, btn, root: ui, cursorEl: cur};
 }

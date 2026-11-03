@@ -10,7 +10,26 @@ Each assembly comes apart along its own axis into a stack of components, the way
 
 **▶ Watch the film: [`media/formica-fx6.mp4`](media/formica-fx6.mp4)**
 
-**▶ Play it live in a browser: [`media/ant-film.html`](media/ant-film.html).** Download it and open it locally. It's one self-contained file (no network), plays the film in real time and loops, without the music. Keys: Space pause, ←/→ skip 2 s, 1–9 jump to a section, R restart, H hide panels, F fullscreen. To rebuild it after changing the source, run `node ~/.claude/skills/teardown/sims/build.mjs ./ant-film` and copy `teardown-out/dist/ant-film.html` here.
+**▶ Take it apart yourself: [`media/ant-live.html`](media/ant-live.html).** Download it and open it in a browser. It's one self-contained file and needs no network.
+
+- **Starts on its own:** it plays the film as an auto tour, with the operator's cursor.
+- **Take over:** click anywhere and you're in control. After 25 s with no input the tour resumes, or press **▶ RESUME AUTO TOUR** at the top.
+- **ASSEMBLIES:** HERO, ANTENNA, EYE, JAW, THORAX, ABDOMEN and LEGS move the camera in, and that assembly comes apart with labelled parts. HERO closes everything and sets the ant walking; press it again to stop or start.
+- **DISPLAY:** LABELS shows or hides the callouts, EXPLODED tears down the whole ant, and TURNTABLE spins the camera.
+- **Mouse:** drag to orbit, scroll to zoom.
+- **Keys:**
+  - 1–7: the assemblies
+  - E: exploded
+  - L: labels
+  - T: turntable
+  - W: walk
+  - ←/→: orbit
+  - ↑/↓: zoom
+  - Space: pause
+  - H: hide panels
+  - F: fullscreen
+- **Sound:** none; the music is only in the MP4.
+- **Rebuild:** after a source change, run `node ~/.claude/skills/teardown/sims/build.mjs ./ant-live` and copy `teardown-out/dist/ant-live.html` into `media/`.
 
 ## Shot list
 
@@ -38,8 +57,11 @@ Each assembly comes apart along its own axis into a stack of components, the way
 | `ant/stage.js` | Studio, shadows, ambient occlusion (GTAO), ink outlines, bloom. |
 | `ant/console.js` | The 1600×900 field-simulator overlay. |
 | `ant/film.js` | Pose, cameras (every move backs off as it travels), cursor, console data and callouts. |
+| `ant/live.js` | The interactive page: the same ant, studio and console run in real time from button, mouse and key input, with the film as an auto tour when left alone. |
 | `ant/score.py` | The soundtrack (see Sound). |
 | `ant-film/` | Entry point and `timeline.json`, the single source of every beat. |
+| `ant-live/` | Entry point of the interactive page. |
+| `tests/live.test.mjs` | Drives the interactive page in headless Chromium: tour, take-over, opening assemblies, orbit, exploded view, labels, no errors. |
 | `ant-preview/`, `pv.sh` | The model with no console, for checking any angle or opened state: `./pv.sh name '{"view":{...},"state":{...}}'` |
 | `render.sh` | Build, score, render in resumable chunks, join, add the soundtrack. |
 | `check.sh` | Checks a finished film: 1920×1080, 60 fps, 1716 frames, A/V sync, clean decode, loudness and peak. |
@@ -70,6 +92,12 @@ To check a finished film (size, 1716 frames, A/V sync, clean decode, −14 LUFS,
 
 ```
 ./check.sh                # or ./check.sh render/formica-fx6.mp4
+```
+
+To test the interactive page (about 10 min without a GPU):
+
+```
+CHROMIUM=$CHS node tests/live.test.mjs media/ant-live.html
 ```
 
 To review frames without rendering video, use one tile per timeline beat:
