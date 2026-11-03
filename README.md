@@ -40,6 +40,7 @@ Each assembly comes apart along its own axis into a stack of components, the way
 | `ant-film/` | Entry point and `timeline.json`, the single source of every beat. |
 | `ant-preview/`, `pv.sh` | The model with no console, for checking any angle or opened state: `./pv.sh name '{"view":{...},"state":{...}}'` |
 | `render.sh` | Build, score, render in resumable chunks, join, add the soundtrack. |
+| `check.sh` | Checks a finished film: 1920×1080, 60 fps, 1716 frames, A/V sync, clean decode, loudness and peak. |
 
 ## Install
 
@@ -58,10 +59,16 @@ JOBS=2 ./render.sh        # two workers in parallel, ~1.3 GB RAM each
 ```
 
 - **Chunks:** 2 s each, claimed with lock directories, so no frame is rendered twice.
-- **Retries:** a failed chunk is retried up to 3 times.
+- **Retries:** a failed chunk is retried up to 5 times.
 - **Joining:** happens only when every frame is present.
 - **Resuming:** after a killed run, delete `render/chunks/*.lock` and run again; finished chunks are kept.
-- **Speed:** without a GPU (SwiftShader), expect about 8–10 s per frame, about 4 hours for the film. Internals are only drawn while their section is open or during the teardown. With a GPU it's minutes.
+- **Speed:** without a GPU (SwiftShader), expect about 4–5 s per frame on 4 vCPUs, about 2.5 hours for the film (slower if the machine is busy). Internals are only drawn while their section is open or during the teardown. With a GPU it's minutes.
+
+To check a finished film (size, 1716 frames, A/V sync, clean decode, −14 LUFS, true peak):
+
+```
+./check.sh                # or ./check.sh render/formica-fx6.mp4
+```
 
 To review frames without rendering video, use one tile per timeline beat:
 
@@ -84,5 +91,6 @@ The soundtrack is mastered to −14 LUFS.
 
 ## Known limits
 
-- **Detail:** the model is procedural. It follows the sheets' shapes, palette and component breakdowns, not every painted bolt.
-- **Exploded leg:** in the legs section only the front-left leg comes apart; the other five fade back.
+- **Detail:** the model is procedural. The outer shapes and palette follow the reference sheets; the internals of each section are designed from scratch.
+- **Mirrored side:** the right eye and right antenna have simpler internals than the left ones, which are the ones the close-ups open.
+- **Exploded leg:** in the legs section only the front-left leg comes apart and has full internals; the other five fade back.
