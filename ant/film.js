@@ -13,16 +13,13 @@ const O = P.TL.ops;
 export const DEFAULTS = {duration: P.DURATION, fps: 60, theme: 'light', hud: {enabled: false, title: 'Formica FX-6', subtitle: ''}, director: {enabled: false}, watermark: ''};
 
 // ------------------------------------------------------------ the pose
-export function poseAt(t) {
-  const phase = P.phaseAt(t);
-  const speed = P.speedAt(t);
-  const liftK = P.liftKAt(t);
+/** The pose from the gait and the opened/exploded amounts; the film (poseAt) and the live page both build it here. */
+export function poseFrom({t, phase, speed, liftK, x, open, explode, iso, opening}) {
   const walkK = Math.min(1, speed / GAIT.vMax);
   const bob = 0.004 * Math.sin(4 * Math.PI * phase) * Math.min(1, walkK) + 0.0012 * Math.sin((2 * Math.PI * t) / 2.6) * Math.max(0, 1 - walkK);
   const y = BODY.height + bob;
   const roll = 0.01 * Math.sin(2 * Math.PI * phase) * Math.min(1, walkK);
   const pitch = 0;
-  const x = P.travel(t);
   const cr = Math.cos(roll);
   const sr = Math.sin(roll);
   const toBody = (v) => [v[0], cr * v[1] + sr * v[2], -sr * v[1] + cr * v[2]];
@@ -33,20 +30,30 @@ export function poseAt(t) {
     const r = restFoot(i);
     return solveLeg(i, toBody([r[0] + c.dx, c.lift - y, r[1]]));
   });
-  const open = Object.fromEntries(P.SECTIONS.map((s) => [s, P.openAt(s, t)]));
   // the head looks about a little while standing
   const still = Math.max(0, 1 - walkK);
   const headPitch = 0.04 * Math.sin(t * 0.9) * still - 0.03 * open.jaw;
   const headYaw = 0.05 * Math.sin(t * 0.63 + 1) * still * (1 - open.eye) * (1 - open.antenna);
-  return {t, x, y, roll, pitch, phase, speed, liftK, legs, cycles, open, headPitch, headYaw, explode: P.explodeAt(t), iso: P.isoAt(t)};
+  return {t, x, y, roll, pitch, phase, speed, liftK, legs, cycles, open, headPitch, headYaw, explode, iso, opening};
 }
+export const poseAt = (t) =>
+  poseFrom({
+    t,
+    phase: P.phaseAt(t),
+    speed: P.speedAt(t),
+    liftK: P.liftKAt(t),
+    x: P.travel(t),
+    open: Object.fromEntries(P.SECTIONS.map((s) => [s, P.openAt(s, t)])),
+    explode: P.explodeAt(t),
+    iso: P.isoAt(t),
+  });
 const planted = (p) => p.cycles.filter((c) => c.lift < 0.004).length;
 const torques = (p) => {
   const n = planted(p);
   return p.legs.map((L, i) => (p.explode > 0.05 ? 0 : kneeTorque(L, n, p.cycles[i].lift >= 0.004)));
 };
 const opening = (t) => (P.SECTIONS.some((s) => Math.abs(P.openAt(s, t + 0.05) - P.openAt(s, t - 0.05)) > 0.002) ? 1 : 0);
-const drawAt = (p) => drawW({torques: torques(p), opening: opening(p.t)});
+export const drawAt = (p) => drawW({torques: torques(p), opening: p.opening ?? opening(p.t)});
 const EN = (() => {
   const n = Math.ceil(P.DURATION * 30) + 2;
   const e = new Float64Array(n + 1);
@@ -60,7 +67,7 @@ const energyAt = (t) => {
 };
 
 // ------------------------------------------------------------ views
-const XS = P.travel(O.antenna); // where the ant stands for the inspection
+export const XS = P.travel(O.antenna); // where the ant stands for the inspection
 const XE = P.travel(O.exit);
 export const VIEW_FN = {
   hero: (u, bx) => ({tx: bx + 0.0, ty: 0.22, tz: 0, az: 34 + 1.5 * u, el: 14, d: 2.35, sx: 0, sy: -36}),
@@ -97,7 +104,7 @@ const toCam = (c) => ({...c, az: c.az * D2R, el: c.el * D2R});
 
 // ------------------------------------------------------------ the operator's pointer
 const REST = [[1196, 470], [1150, 400], [1210, 560], [1180, 440], [1222, 520], [1170, 600], [1205, 455], [1190, 500]];
-function makeCursor(spots) {
+export function makeCursor(spots) {
   const EV = P.ACTIONS.map((a) => ({t: a.t, spot: spots[`${a.group}:${a.key}`]}));
   const WP = [[0, 1200, 500]];
   EV.forEach((e, i) => {
@@ -193,16 +200,18 @@ const SUB_KEYS = ['antenna', 'jaw', 'eye', 'thorax', 'abdomen', 'legs'];
 export function makeConsoleFrame(ui, st) {
   // how many parts each section opens into, counted off the model
   COUNT = Object.fromEntries(P.SECTIONS.map((s) => [s, `${st.ant.parts.filter((q) => q.sec === s).length} PARTS`]));
-  return (t, p) => {
+  // L: the live page's state in place of the timeline (mode, section, labels, display, log, energy, cursor)
+  return (t, p, L) => {
     const tq = torques(p);
     const draw = drawAt(p);
-    const used = energyAt(t);
+    const used = L ? L.used : energyAt(t);
     const pct = 88.6 - (used / BATTERY.wh) * 100;
-    const m = P.modeAt(t);
+    const m = L ? L.m : P.modeAt(t);
     const n = planted(p);
     const ex = p.explode;
-    const sec = P.sectionAt(t);
+    const sec = L ? L.sec : P.sectionAt(t);
     const hist = (leg) => Array.from({length: 81}, (_, k) => {
+      if (L) return footCycle(leg, p.phase - (4 - k * 0.05) * freqAt(p.speed), p.liftK).lift / GAIT.lift;
       const tt = t - 4 + k * 0.05;
       return footCycle(leg, P.phaseAt(tt), P.liftKAt(tt)).lift / GAIT.lift;
     });
@@ -210,7 +219,7 @@ export function makeConsoleFrame(ui, st) {
     const openNow = sec ? p.open[sec] : 0;
     const sub = m.no !== null ? `${COUNT[sec ?? 'legs']} · ${Math.round(openNow * 100)}% OPEN` : {
       'FIELD VIEW': `TRIPOD · ${p.speed.toFixed(2)} M/S · ${n} FEET DOWN`,
-      'FULL TEARDOWN': `TURNTABLE ${Math.round(P.turntableAt(t))}° · ${Math.round(ex * 100)}% APART`,
+      'FULL TEARDOWN': `TURNTABLE ${Math.round(L ? L.turn : P.turntableAt(t)) % 360}° · ${Math.round(ex * 100)}% APART`,
       'EXIT': ex > 0.02 ? `${Math.round((1 - ex) * 100)}% SEATED` : `SPRINT · ${p.speed.toFixed(2)} M/S`,
     }[m.mode];
     const subs = SUB_KEYS.map((k) => {
@@ -220,8 +229,8 @@ export function makeConsoleFrame(ui, st) {
       return ['NOMINAL', ''];
     });
     // callouts, placed outward from the stage centre, then spread so same-side labels never stack
-    const lab = P.labelsAt(t);
-    const set = sec ?? (t >= O.explode && t < O.exit ? 'teardown' : null);
+    const lab = L ? L.labels : P.labelsAt(t);
+    const set = L ? L.set : sec ?? (t >= O.explode && t < O.exit ? 'teardown' : null);
     let callouts = [];
     if (lab > 0.02 && set) {
       callouts = CALLS[set](p, tq).map(([a, name, s]) => {
@@ -254,7 +263,7 @@ export function makeConsoleFrame(ui, st) {
       });
     }
     ui.update({
-      t,
+      t: L ? L.logT : t,
       duration: P.DURATION,
       load: Math.min(1, draw / 260),
       status: m.status,
@@ -268,14 +277,14 @@ export function makeConsoleFrame(ui, st) {
       servoTag,
       att: {height: p.y, pitch: p.pitch * 57.3 + p.headPitch * 0, roll: p.roll * 57.3, speed: p.speed, mode: p.speed > 0.004 ? 'WALKING' : 'STANDING', open: sec ? sec.toUpperCase() : ex > 0.05 ? 'ALL' : '—'},
       asm: m.asm,
-      disp: P.displayAt(t),
+      disp: L ? L.disp : P.displayAt(t),
       subs,
-      log: (() => {
+      log: L ? L.log : (() => {
         const a = P.ACTIONS.filter((x) => x.t <= t).pop();
         return a ? `OPERATOR · ${a.log}` : 'AUTO · WALK CYCLE';
       })(),
       callouts,
-      cursor: ui.cursorAt(t),
+      cursor: L ? L.cursor : ui.cursorAt(t),
     });
   };
 }
